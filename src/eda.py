@@ -1,99 +1,97 @@
-from __future__ import annotations
-
-import json
-
-import matplotlib.pyplot as plt
+from pathlib import Path
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
 
-from src.config import DATA_RAW_PATH, FIGURES_DIR, REPORTS_DIR
-from src.preprocess import get_clean_dataframe
 
+def main():
+    project_root = Path(__file__).resolve().parent.parent
+    data_path = project_root / "data" / "raw" / "test.csv"
+    output_path = project_root / "outputs" / "figures"
 
-def save_class_balance(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(6, 4))
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    df = pd.read_csv(data_path)
+
+    df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+
+    if "attrition" in df.columns:
+        df["attrition"] = df["attrition"].map({"Stayed": 0, "Left": 1}).astype("int64")
+
+    print("\nDataset Info")
+    print(df.info())
+
+    print("\nSummary Statistics")
+    print(df.describe())
+
+    print("\nMissing Values")
+    print(df.isnull().sum())
+
+    plt.figure()
     sns.countplot(x="attrition", data=df)
     plt.title("Attrition Distribution")
-    plt.xlabel("Attrition (0 = Stayed, 1 = Left)")
-    plt.ylabel("Count")
-    plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "class_balance.png", dpi=200)
+    plt.savefig(output_path / "attrition_distribution.png")
     plt.close()
 
+    print("\nAttrition Balance:")
+    print(df["attrition"].value_counts(normalize=True))
 
-def save_numeric_distributions(df: pd.DataFrame) -> None:
-    numeric_cols = df.select_dtypes(include=["int64", "float64", "int32", "float32"]).columns.tolist()
-    if "attrition" in numeric_cols:
-        numeric_cols.remove("attrition")
-
-    if not numeric_cols:
-        return
-
-    df[numeric_cols].hist(figsize=(16, 10), bins=20)
-    plt.suptitle("Numeric Feature Distributions")
+    df.hist(figsize=(15, 10), bins=20)
     plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "numeric_distributions.png", dpi=200)
+    plt.savefig(output_path / "numeric_distributions.png")
     plt.close()
 
-
-def save_correlation_heatmap(df: pd.DataFrame) -> None:
-    numeric_df = df.select_dtypes(include=["int64", "float64", "int32", "float32"])
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(numeric_df.corr(), cmap="coolwarm", annot=False)
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(df.corr(numeric_only=True), cmap="coolwarm")
     plt.title("Correlation Heatmap")
-    plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "correlation_heatmap.png", dpi=200)
+    plt.savefig(output_path / "correlation_heatmap.png")
     plt.close()
 
-
-def save_top_categorical_charts(df: pd.DataFrame) -> None:
-    candidates = [
-        "job_role",
-        "gender",
-        "overtime",
-        "remote_work",
-        "company_reputation",
-        "employee_recognition",
+    important_features = [
+        "age",
+        "monthly_income",
+        "job_satisfaction",
+        "work_life_balance",
+        "performance_rating"
     ]
-    for col in candidates:
-        if col in df.columns:
-            plt.figure(figsize=(8, 4))
-            order = df[col].value_counts().index
-            sns.countplot(data=df, x=col, hue="attrition", order=order)
-            plt.title(f"{col.replace('_', ' ').title()} vs Attrition")
-            plt.xticks(rotation=30, ha="right")
-            plt.tight_layout()
-            plt.savefig(FIGURES_DIR / f"{col}_vs_attrition.png", dpi=200)
+
+    for feature in important_features:
+        if feature in df.columns:
+            plt.figure()
+            sns.boxplot(x="attrition", y=feature, data=df)
+            plt.title(f"{feature} vs Attrition")
+            plt.savefig(output_path / f"{feature}_vs_attrition.png")
             plt.close()
 
+    categorical_cols = df.select_dtypes(include="object").columns
 
-def write_report(df: pd.DataFrame) -> None:
-    report = {
-        "shape": {"rows": int(df.shape[0]), "columns": int(df.shape[1])},
-        "missing_values": df.isnull().sum().to_dict(),
-        "class_balance": df["attrition"].value_counts(normalize=True).round(4).to_dict(),
-        "numeric_summary": df.describe(include="all").fillna("").astype(str).to_dict(),
-    }
-    with open(REPORTS_DIR / "eda_report.json", "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+    for col in categorical_cols:
+        plt.figure(figsize=(8, 5))
+        sns.countplot(x=col, hue="attrition", data=df)
+        plt.xticks(rotation=45)
+        plt.title(f"{col} vs Attrition")
+        plt.tight_layout()
+        plt.savefig(output_path / f"{col}_vs_attrition.png")
+        plt.close()
 
+    print("\nKEY INSIGHTS:")
 
-def main() -> None:
-    sns.set_theme(style="whitegrid")
-    df = get_clean_dataframe(DATA_RAW_PATH)
+    if "job_satisfaction" in df.columns:
+        print("- Lower job satisfaction may be associated with higher attrition.")
 
-    print("Dataset shape:", df.shape)
-    print("\nMissing values:\n", df.isnull().sum())
-    print("\nAttrition distribution:\n", df["attrition"].value_counts(normalize=True))
+    if "monthly_income" in df.columns:
+        print("- Lower income may be linked to higher attrition risk.")
 
-    save_class_balance(df)
-    save_numeric_distributions(df)
-    save_correlation_heatmap(df)
-    save_top_categorical_charts(df)
-    write_report(df)
+    if "work_life_balance" in df.columns:
+        print("- Poor work-life balance may correlate with attrition.")
 
-    print(f"\nEDA figures saved to: {FIGURES_DIR}")
-    print(f"EDA report saved to: {REPORTS_DIR / 'eda_report.json'}")
+    if "performance_rating" in df.columns:
+        print("- Performance trends may influence attrition behavior.")
+
+    print("- Some categories or departments may show higher attrition.")
+    print("- Check the class distribution above for imbalance.")
+
+    print("\nEDA complete. Figures saved in outputs/figures/")
 
 
 if __name__ == "__main__":
