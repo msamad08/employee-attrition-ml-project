@@ -1,98 +1,136 @@
-# Employee Attrition Prediction Project
+# 🚀 Employee Attrition Prediction (Machine Learning Project)
 
-End-to-end machine learning project for predicting employee attrition risk using a real HR dataset.
+An end-to-end machine learning project designed to predict employee attrition using real-world HR data. This project demonstrates a full data science workflow from data preprocessing to model evaluation and comparison.
 
-## Project Goals
-- Build a clean, reproducible ML workflow
-- Perform exploratory data analysis (EDA)
-- Train and compare baseline and neural-network-style models
-- Save the best model for reuse
-- Expose a simple prediction API with FastAPI
+---
 
-## Dataset
-This project uses a CSV with 14,900 rows and 24 columns. The target column is:
+## 📌 Project Overview
 
-- `Attrition`: `Left` or `Stayed`
+Employee attrition is a critical challenge for organizations. This project builds predictive models to identify employees at risk of leaving, enabling proactive decision-making.
 
-## Project Structure
-```text
-employee_attrition_ml_project/
+---
+
+## 📊 Exploratory Data Analysis (EDA)
+
+### Attrition Distribution
+![Attrition Distribution](outputs/figures/attrition_distribution.png)
+
+### Correlation Heatmap
+![Correlation Heatmap](outputs/figures/correlation_heatmap.png)
+
+### Feature Importance
+![Feature Importance](outputs/figures/feature_importance.png)
+
+---
+
+## 🧠 Models Implemented
+
+- Logistic Regression  
+- Random Forest  
+- Neural Network (MLPClassifier)
+
+---
+
+## 📈 Model Comparison
+
+| Model                | Accuracy | F1 Score | ROC-AUC |
+|---------------------|----------|----------|---------|
+| Logistic Regression | XX%      | XX%      | XX%     |
+| Random Forest       | XX%      | XX%      | XX%     |
+| Neural Network (MLP)| XX%      | XX%      | XX%     |
+
+> 📌 *Update this table with your actual results from `outputs/model_comparison.csv`*
+
+---
+
+
+## ⚙️ Project Structure
+employee-attrition-ml-project/
+│
 ├── data/
-│   ├── raw/
-│   │   └── employee_attrition.csv
-│   └── processed/
+│ └── raw/
+│ └── employee_attrition.csv
+│
 ├── models/
+│
 ├── outputs/
-│   ├── figures/
-│   └── reports/
+│ ├── figures/
+│ └── reports/
+│
 ├── src/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── preprocess.py
-│   ├── eda.py
-│   ├── train_models.py
-│   ├── nn_model.py
-│   ├── feature_importance.py
-│   ├── save_best_model.py
-│   └── app.py
+│ ├── config.py
+│ ├── preprocess.py
+│ ├── eda.py
+│ ├── train_models.py
+│ ├── model_comparison.py
+│ ├── nn_model.py
+│
+├── README.md
 ├── requirements.txt
-└── README.md
-```
+└── .gitignore
 
-## Setup
-Create and activate a virtual environment, then install dependencies.
 
-### Windows PowerShell
-```powershell
-python -m venv .venv
+---
+
+## 🔄 Workflow
+
+1. Data Cleaning & Preprocessing  
+2. Exploratory Data Analysis (EDA)  
+3. Feature Engineering  
+4. Model Training  
+5. Model Evaluation  
+6. Model Comparison  
+7. Model Saving  
+
+---
+
+## 🛠️ Technologies Used
+
+- Python  
+- Pandas  
+- NumPy  
+- Scikit-learn  
+- Matplotlib  
+- Seaborn  
+
+---
+
+## 🚀 How to Run
+
+```bash
+# Activate virtual environment
 .venv\Scripts\Activate.ps1
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-## Run Order
-
-### 1) Exploratory Data Analysis
-```powershell
+# Run EDA
 python -m src.eda
-```
 
-### 2) Train baseline models
-```powershell
+# Train models
 python -m src.train_models
-```
 
-### 3) Train neural network with scikit-learn MLPClassifier
-```powershell
+# Compare models
+python -m src.model_comparison
+
+# Run neural network
 python -m src.nn_model
-```
+-------
 
-### 4) Save the best model
-```powershell
-python -m src.save_best_model
-```
+## Key Insights
 
-### 5) Generate feature importance plot
-```powershell
-python -m src.feature_importance
-```
+Employees with lower job satisfaction show higher attrition risk
+Lower income levels correlate with increased turnover
+Work-life balance significantly impacts retention
+Certain departments exhibit higher attrition patterns
 
-### 6) Start API
-```powershell
-uvicorn src.app:app --reload
-```
+## Future Improvements
+Hyperparameter tuning (GridSearch / RandomSearch)
+Deploy model using FastAPI
+Add SHAP for model explainability
+Integrate real-time prediction API
 
-## API Endpoints
-- `GET /` → health check
-- `POST /predict` → attrition prediction
+Author
+Mohammad Samad
+Aspiring Data Scientist | Machine Learning | Python
 
-## Notes
-- Column names are standardized automatically.
-- `Attrition` is mapped to `0/1`:
-  - `0 = Stayed`
-  - `1 = Left`
-- Outputs are saved under `outputs/` and `models/`.
-
-## Resume-Ready Summary
-- Built an end-to-end employee attrition prediction pipeline using Python and scikit-learn.
-- Performed EDA, preprocessing, model comparison, feature importance analysis, and model persistence.
-- Implemented a neural-network model using `MLPClassifier` and exposed the best model through a FastAPI endpoint.
