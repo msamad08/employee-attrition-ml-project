@@ -1,26 +1,61 @@
+# =========================
 # Python
+# =========================
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.so
 
-# Virtual env
+# =========================
+# Virtual Environments
+# =========================
 .venv/
 venv/
+env/
 
+# =========================
 # Jupyter
+# =========================
 .ipynb_checkpoints/
 
-# Model artifacts
-models/*.pkl
-models/*.joblib
-
-# Data files
-data/processed/
+# =========================
+# Logs
+# =========================
 *.log
 
-# OS / editor
+# =========================
+# OS / Editor
+# =========================
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+# =========================
+# Data
+# =========================
+# Keep main dataset, ignore others if needed
+# data/raw/
+# !data/raw/employee_attrition.csv
+
+# =========================
+# Models
+# =========================
+# Keep trained models
+# models/
+# !models/*.joblib
+
+# =========================
+# Outputs
+# =========================
+# Keep figures, ignore large reports if needed
+# outputs/
+# !outputs/figures/
+
+# =========================
+# Optional (uncomment if repo gets large)
+# =========================
+# *.csv
+# *.xlsx
+# *.zip
