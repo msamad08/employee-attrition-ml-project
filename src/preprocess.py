@@ -70,9 +70,15 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
         .astype(str)
         .str.strip()
         .str.lower()
-        .map({"stayed": 0, "left": 1})
     )
 
+    valid_map = {"stayed": 0, "left": 1}
+
+    invalid_values = set(df["attrition"].unique()) - set(valid_map.keys())
+    if invalid_values:
+        raise ValueError(f"Unexpected values in attrition column: {invalid_values}")
+
+    df["attrition"] = df["attrition"].map(valid_map).astype("int64")
     if df["attrition"].isna().any():
         bad_values = df.loc[df["attrition"].isna(), "attrition"].unique()
         raise ValueError(f"Unexpected values found in attrition column: {bad_values}")
@@ -121,7 +127,7 @@ def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
 
 def prepare_data(
     file_path: str | Path,
-    target_col: str = "attrition",
+    target_col = "attrition",
     test_size: float = 0.2,
     random_state: int = RANDOM_STATE,
 ):
